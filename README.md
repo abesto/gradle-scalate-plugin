@@ -1,64 +1,60 @@
 # Gradle Scalate plugin
 
-This plugin provides tasks for [Scalate](http://scalate.fusesource.org/)
-in Gradle build script. Currently, task for `precompile` of templates is supported.
+**State**: Experimental
 
-*Note:* [Scalate](http://scalate.fusesource.org/) already provides its [official plugins to Precompile Templates](http://scalate.fusesource.org/documentation/user-guide.html#precompiling_templates) for Maven and SBT. Use of the official plugin in Maven or SBT is strongly recommended. Use this plugin ** only when ** you somehow have to precompile your scalate templates in Gradle build and unable to change it to Maven or SBT.
+This plugin provides basic support for precompiling [Scalate](http://scalate.fusesource.org/) templates.
+It defines a new task `scalatePreCompile` that runs before `compileScala`, which generates Scala files equivalent to the
+input Scalate templates using the Scalate precompiler. The output of `scalatePreCompile` is passed to `compileScala` as
+additional Scala sources to compile.
 
-## Prerequired
+*Note:* [Scalate](http://scalate.fusesource.org/) already provides
+[official plugins to Precompile Templates](http://scalate.fusesource.org/documentation/user-guide.html#precompiling_templates)
+for Maven and SBT. Use of the official plugin in Maven or SBT is strongly recommended. Use this plugin **only when** you
+have to precompile your Scalate templates in a Gradle build. This plugin aims to behave similarly to the SBT plugin.
+
+## Compatibility
+
+ * Tested with Gradle 4.0, should work with >=2.0
+ * Tested with Scalate 1.8.0 (uses precompiler version 1.8.0.1), should work with other versions as long as the
+   API of precompiled templates is compatible.
+
+## Requirements
 
 * The plugin depends on `'scala'` plugin. Include below in your build script.
+```gradle
+apply plugin: 'scala'
 ```
-    apply plugin: 'scala'
-```
-
 * Add necessary dependencies for scala. See [user manual for "gradle scala plugin"](http://gradle.org/docs/current/userguide/scala_plugin.html#N12952).
 
-* Add scalate-core.jar in your project dependencies with `:compile` configuration.
-```
-        dependencies {
-            compile 'org.fusesource.scalate:scalate-core:1.5.3'
-        }
-```
+## Setup
 
-## Usage
-
-To use the plugin, include in your build script:
-```
-    apply plugin: 'scalate'
-```
-
-The plugin JAR is needed in the classpath of your build script. You need cloudbees repository aside from central.
-Below script snippet is an example on how to retrieve the plugin jar.
+The plugin is currently published in a Bintray repository. To include it in your project:
 
 ```
-    buildscript {
-        repositories {
-            mavenCentral()
-            maven {
-                url "http://repository-rmci.forge.cloudbees.com/release/"
-            }
-        }
-
-        dependencies {
-            classpath 'murtools:gradle-scalate-plugin:0.0.2'
+buildscript {
+    repositories {
+    jcenter()
+        maven {
+            url "http://dl.bintray.com/abesto/gradle-plugins"
         }
     }
+
+    dependencies {
+        classpath "murtools:gradle-scalate-plugin:0.0.1"
+    }
+}
+
+apply plugin: 'scalate'
 ```
 
-## Tasks
+## Configuration
 
-The plugin defines the following tasks:
+All the customizable options, along with defaults:
 
-* `scalatePreCompile`: precompile your templates of ssp, scaml etc. Below properties are defined for this task.
- * `templateSrcDir`: (File) root directory where your scalate templates located. Default is `src/main/webapp`.
- * `workingDirectory`: (File) directory where generated .scala files will be located.
- * `targetDirectory`: (File) directrory where compiled .class files will be located. Default is `build/classes/main`
- * `templates`: (File) path of additional template file aside from the `templateSrcDir`
- * `contextClass`: (String) class name of [RenderContext](http://scalate.fusesource.org/maven/1.5.3/scalate-core/scaladocs/org/fusesource/scalate/RenderContext.html) to precompile. Default is [ServletRenderContext](http://scalate.fusesource.org/maven/1.5.3/scalate-core/scaladocs/org/fusesource/scalate/servlet/ServletRenderContext.html)
- * `bootClassName`: (String) boot class name
-
-
-## Todo
-* 
-
+```
+scalate {
+  templateSrcDir 'src/main/webapp'
+  generatedDir   'build/scalate-gen'
+  loggingConfig  'src/main/resources/logback.xml'
+  packagePrefix  'scalate'
+}

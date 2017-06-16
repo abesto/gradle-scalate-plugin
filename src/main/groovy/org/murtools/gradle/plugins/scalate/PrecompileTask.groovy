@@ -8,53 +8,35 @@ import org.gradle.api.tasks.TaskAction
 
 @Slf4j
 class PrecompileTask extends DefaultTask {
-	final def DEFAULT_SRC_DIR = 'src/main/webapp'
-	final def DEFAULT_WORKDIR = 'build/scalate-out/work'
-	final def DEFAULT_CLASSES = 'build/classes/main'
 	final def NoArgs = null
-	
-	File templateSrcDir
-	File workingDirectory
-	File targetDirectory 
-	List<String> templates
-	String contextClass
-	String bootClassName
-	
+
 	@TaskAction
 	protected void start() {
-		def targetDirectorySpec = targetDirectory ?: project.file(DEFAULT_CLASSES)
-		def templateSrcDirSpec = templateSrcDir ?: project.file(DEFAULT_SRC_DIR)
-		def workingDirectorySpec = workingDirectory ?: project.file(DEFAULT_WORKDIR)
-		
-		log.info("sources: given[$templateSrcDir], actual[$templateSrcDirSpec]")
-		log.info("targetDirectory: given[$targetDirectory], actual[$targetDirectorySpec]")
-		log.info("workingDirectory: given[$workingDirectory], actual[$workingDirectorySpec]")
-		
-		def classpathURLs = convertURL(project.files(project.configurations.compile, targetDirectorySpec))
+		def classpathURLs = convertURL(project.files(project.configurations.compile, project.scalate.generatedDir))
+        logger.info("Precompiling Scalate templates. sources=${project.scalate.templateSrcDir} targetDirectory=${project.scalate.generatedDir} packagePrefix=${project.scalate.packagePrefix} logConfig=${project.scalate.loggingConfig}")
+
 		def precompiler = loadPrecompiler(classpathURLs)
-		precompiler.invokeMethod('sources_$eq', templateSrcDirSpec)
-		precompiler.invokeMethod('workingDirectory_$eq', workingDirectorySpec)
-		precompiler.invokeMethod('targetDirectory_$eq', targetDirectorySpec)
-		precompiler.invokeMethod('templates_$eq', templates?.toArray())
-		precompiler.invokeMethod('contextClass_$eq', contextClass)
-		precompiler.invokeMethod('bootClassName_$eq', bootClassName)
+		precompiler.invokeMethod('sources_$eq', project.file(project.scalate.templateSrcDir))
+		precompiler.invokeMethod('targetDirectory_$eq', project.file(project.scalate.generatedDir))
+		precompiler.invokeMethod('packagePrefix_$eq', project.scalate.packagePrefix)
+		precompiler.invokeMethod('logConfig_$eq', project.file(project.scalate.loggingConfig))
 		precompiler.invokeMethod("execute", NoArgs);
 	}
 
-	private GroovyObject loadPrecompiler(URL[] classpathURLs) {
-		def precompilerClassName = 'org.fusesource.scalate.support.Precompiler'
+	private static GroovyObject loadPrecompiler(URL[] classpathURLs) {
+		def precompilerClassName = 'org.fusesource.scalate.Precompiler'
 
-		def newClassLoader = new URLClassLoader(classpathURLs, Thread.currentThread().contextClassLoader)
+        def oldClassLoader = Thread.currentThread().contextClassLoader
+		def newClassLoader = new URLClassLoader(classpathURLs, oldClassLoader)
 		Thread.currentThread().contextClassLoader = newClassLoader
-		
 		def precompiler = newClassLoader.loadClass(precompilerClassName).newInstance()
-		
+		Thread.currentThread().contextClassLoader = oldClassLoader
+
 		return new Proxy().wrap(precompiler)
 	}
 
-	private URL[] convertURL(FileCollection files) {
+	private static URL[] convertURL(FileCollection files) {
 		log.debug "${files*.path}"
-		
 		return files.collect {it.toURL()}
 	}
 }
