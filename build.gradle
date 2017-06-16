@@ -11,12 +11,6 @@ def compatibilityVersion = 1.5
 sourceCompatibility = compatibilityVersion
 targetCompatibility = compatibilityVersion
 
-configurations {
-    publisher {
-        description = "libraries to publish the artifacts to the repository"
-    }
-}
-
 repositories {
     mavenCentral()
 }
@@ -27,8 +21,7 @@ dependencies {
             gradleApi(),
             "org.scalatra.scalate:scalate-precompiler_2.12:1.8.0.1"
 
-    testCompile "org.fusesource.scalate:scalate-core:1.5.3"
-    publisher "org.apache.maven.wagon:wagon-webdav:1.0-beta-2"
+    testCompile "org.fusesource.scalate:scalate-core:1.8.0"
 }
 
 jar {

@@ -4,7 +4,8 @@ import org.fusesource.scalate._
 
 class Controller {
 	def execute(p : Person): String = {
-		var te = new TemplateEngine
+		val te = new TemplateEngine
+		te.packagePrefix = "scalate"
 		te.layout("user.ssp", Map("user" -> p))
 	}
 }

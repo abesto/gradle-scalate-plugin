@@ -16,6 +16,7 @@ have to precompile your Scalate templates in a Gradle build. This plugin aims to
 
 ## Compatibility
 
+ * Packaged with Scala 2.12
  * Tested with Gradle 4.0, should work with >=2.0
  * Tested with Scalate 1.8.0 (uses precompiler version 1.8.0.1), should work with other versions as long as the
    API of precompiled templates is compatible.
