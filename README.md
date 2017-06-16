@@ -1,3 +1,5 @@
+[![Download](https://api.bintray.com/packages/abesto/gradle-plugins/gradle-scalate-plugin/images/download.svg) ](https://bintray.com/abesto/gradle-plugins/gradle-scalate-plugin/_latestVersion)
+
 # Gradle Scalate plugin
 
 **State**: Experimental
