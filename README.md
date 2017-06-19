@@ -33,7 +33,7 @@ apply plugin: 'scala'
 
 The plugin is currently published in a Bintray repository. To include it in your project:
 
-```
+```gradle
 buildscript {
     repositories {
     jcenter()
@@ -54,7 +54,7 @@ apply plugin: 'scalate'
 
 All the customizable options, along with defaults:
 
-```
+```gradle
 scalate {
   templateSrcDir 'src/main/webapp'
   generatedDir   'build/scalate-gen'
